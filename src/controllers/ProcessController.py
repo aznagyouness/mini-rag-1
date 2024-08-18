@@ -40,6 +40,10 @@ class ProcessController(BaseController):
     def get_file_content(self, file_id):
 
         loader = self.get_file_loader(file_id= file_id)
+
+        # if the extention doesn't exist it will return None 
+        if loader is None :
+            return None
         return loader.load()
     
 
