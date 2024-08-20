@@ -11,7 +11,11 @@ from models import ResponseSignal
 from .schemes.data import ProcessRequest
 from models.ProjectModel import ProjectModel
 from models.ChunkModel import ChunkModel
-from models.db_schemas import DataChunk
+from models.db_schemas import DataChunk, Asset
+
+from models.AssetModel import AssetModel
+from models.enums.AssetTypeEnum import AssetTypeEnum
+
 
 
 data_router = APIRouter(
@@ -57,11 +61,27 @@ async def upload_data(request:Request, project_id : str, ff : UploadFile,
         while chunk := await ff.read(app_settings.FILE_DEFAULT_CHUNK_SIZE):
             await f.write(chunk)
 
+
+    #store the assets into the database
+    asset_model = await AssetModel.create_instance(
+        db_client = request.app.db_client
+    )
+
+    asset_ressource =Asset(
+        asset_project_id = project.id,        
+        asset_name = file_id,
+        asset_type = AssetTypeEnum.FILE.value,
+        asset_size = os.path.getsize(file_path)
+    )
+
+    asset_record = await asset_model.create_asset(asset = asset_ressource)
+
+
+
     return JSONResponse(
             content = {
                      'signal' : ResponseSignal.FILE_UPLOAD_SUCCESS.value,
-                     'file_id' : file_id,
-                     'project.id': str(project.id)
+                     'file_id' : str(asset_record.id)
 
                     }
         )
