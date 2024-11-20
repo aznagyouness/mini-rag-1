@@ -30,16 +30,20 @@ class OpenAIProvider(LLMInterface):
 
         self.logger = logging.getLogger(__name__)
 
+
     def set_generation_model(self, model_id: str):
         self.generation_model_id = model_id
+
 
     def set_embedding_model(self, model_id: str, embedding_size: int):
         self.embedding_model_id = model_id
         self.embedding_size = embedding_size
 
+
     def process_text(self, text : str):
         return text[:self.default_input_max_characters].stripe()
-    
+
+
     def embed_text(self, text:str, document_type: str = None ):
         
         if not self.client :
@@ -61,6 +65,7 @@ class OpenAIProvider(LLMInterface):
         
         return response.data[0].embedding
     
+
     def genertate_text(self, prompt:str,chat_history: list= [], max_output_tokens:int= None ,
                        temperature: float= None ):
         
@@ -88,6 +93,7 @@ class OpenAIProvider(LLMInterface):
             self.logger.error("Error while generation text with OpenAI")
 
         return response.choices[0].message["content"]
+
 
     def construct_prompt(self, prompt: str, role: str):
         return {
